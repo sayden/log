@@ -13,12 +13,12 @@ func TestParseLevel(t *testing.T) {
 		Level  Level
 		Num    int
 	}{
-		{"debug", DebugLevel, 0},
-		{"info", InfoLevel, 1},
-		{"warn", WarnLevel, 2},
-		{"warning", WarnLevel, 3},
-		{"error", ErrorLevel, 4},
-		{"fatal", FatalLevel, 5},
+		{"debug", LevelDebug, 0},
+		{"info", LevelInfo, 1},
+		{"warn", LevelWarn, 2},
+		{"warning", LevelWarn, 3},
+		{"error", LevelError, 4},
+		{"fatal", LevelFatal, 5},
 	}
 
 	for _, c := range cases {
@@ -38,12 +38,12 @@ func TestParseLevel(t *testing.T) {
 
 func TestLevel_MarshalJSON(t *testing.T) {
 	e := Entry{
-		Level:   InfoLevel,
+		Level:   LevelInfo,
 		Message: "hello",
 		Fields:  Fields{},
 	}
 
-	expect := `{"fields":{},"level":"info","timestamp":"0001-01-01T00:00:00Z","message":"hello"}`
+	expect := `{"fields":{},"level":"info","timestamp":"0001-01-01T00:00:00Z","message":"hello","Telemetry":null}`
 
 	b, err := json.Marshal(e)
 	assert.NoError(t, err)
@@ -56,5 +56,5 @@ func TestLevel_UnmarshalJSON(t *testing.T) {
 
 	err := json.Unmarshal([]byte(s), e)
 	assert.NoError(t, err)
-	assert.Equal(t, InfoLevel, e.Level)
+	assert.Equal(t, LevelInfo, e.Level)
 }

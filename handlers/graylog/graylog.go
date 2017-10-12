@@ -2,7 +2,7 @@
 package graylog
 
 import (
-	"github.com/apex/log"
+	"github.com/sayden/log"
 	"github.com/aphistic/golf"
 )
 
@@ -38,18 +38,18 @@ func New(url string) (*Handler, error) {
 }
 
 // HandleLog implements log.Handler.
-func (h *Handler) HandleLog(e *log.Entry) error {
-	switch e.Level {
-	case log.DebugLevel:
-		return h.logger.Dbgm(e.Fields, e.Message)
-	case log.InfoLevel:
-		return h.logger.Infom(e.Fields, e.Message)
-	case log.WarnLevel:
-		return h.logger.Warnm(e.Fields, e.Message)
-	case log.ErrorLevel:
-		return h.logger.Errm(e.Fields, e.Message)
-	case log.FatalLevel:
-		return h.logger.Critm(e.Fields, e.Message)
+func (h *Handler) HandleLog(e log.Interface) error {
+	switch e.GetLevel() {
+	case log.LevelDebug:
+		return h.logger.Dbgm(e.GetFields(), e.GetMessage())
+	case log.LevelInfo:
+		return h.logger.Infom(e.GetFields(), e.GetMessage())
+	case log.LevelWarn:
+		return h.logger.Warnm(e.GetFields(), e.GetMessage())
+	case log.LevelError:
+		return h.logger.Errm(e.GetFields(), e.GetMessage())
+	case log.LevelFatal:
+		return h.logger.Critm(e.GetFields(), e.GetMessage())
 	}
 
 	return nil

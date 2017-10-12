@@ -2,7 +2,7 @@
 package multi
 
 import (
-	"github.com/apex/log"
+	"github.com/sayden/log"
 )
 
 // Handler implementation.
@@ -18,7 +18,7 @@ func New(h ...log.Handler) *Handler {
 }
 
 // HandleLog implements log.Handler.
-func (h *Handler) HandleLog(e *log.Entry) error {
+func (h *Handler) HandleLog(e log.Interface) error {
 	for _, handler := range h.Handlers {
 		// TODO(tj): maybe just write to stderr here, definitely not ideal
 		// to miss out logging to a more critical handler if something

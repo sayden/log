@@ -9,7 +9,7 @@ import (
 
 func TestEntry_WithFields(t *testing.T) {
 	a := NewEntry(nil)
-	assert.Nil(t, a.Fields)
+	assert.Nil(t, a.GetFields())
 
 	b := a.WithFields(Fields{"foo": "bar"})
 	assert.Equal(t, Fields{}, a.mergedFields())
@@ -17,11 +17,11 @@ func TestEntry_WithFields(t *testing.T) {
 
 	c := a.WithFields(Fields{"foo": "hello", "bar": "world"})
 
-	e := c.finalize(InfoLevel, "upload")
-	assert.Equal(t, e.Message, "upload")
-	assert.Equal(t, e.Fields, Fields{"foo": "hello", "bar": "world"})
-	assert.Equal(t, e.Level, InfoLevel)
-	assert.NotEmpty(t, e.Timestamp)
+	e := c.finalize(LevelInfo, "upload")
+	assert.Equal(t, e.GetMessage(), "upload")
+	assert.Equal(t, e.GetFields(), Fields{"foo": "hello", "bar": "world"})
+	assert.Equal(t, e.GetLevel(), LevelInfo)
+	assert.NotEmpty(t, e.GetTimestamp())
 }
 
 func TestEntry_WithField(t *testing.T) {

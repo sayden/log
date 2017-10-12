@@ -1,9 +1,12 @@
 package log
 
+import "github.com/prometheus/client_golang/prometheus"
+
 // singletons ftw?
 var Log Interface = &Logger{
 	Handler: HandlerFunc(handleStdLog),
-	Level:   InfoLevel,
+	Level:   LevelInfo,
+	t:       &prom{counterMetrics: make(map[string]*prometheus.CounterVec)},
 }
 
 // SetHandler sets the handler. This is not thread-safe.
@@ -12,6 +15,22 @@ func SetHandler(h Handler) {
 	if logger, ok := Log.(*Logger); ok {
 		logger.Handler = h
 	}
+}
+
+func SetTelemetry(t Telemetry) {
+	if logger, ok := Log.(*Logger); ok {
+		logger.t = t
+	}
+}
+
+//Prometheus
+func SetPrometheusInc(name string, counter *prometheus.CounterVec) {
+	Log.GetTelemetry().SetPrometheusInc(name, counter)
+}
+
+//Statsd
+func SetNamespace(s string) {
+	Log.GetTelemetry().SetNamespace(s)
 }
 
 // SetLevel sets the log level. This is not thread-safe.
@@ -28,18 +47,22 @@ func SetLevelFromString(s string) {
 	}
 }
 
+func WithTags(tag ...string) Interface {
+	return Log.GetTelemetry().WithTags(tag...)
+}
+
 // WithFields returns a new entry with `fields` set.
-func WithFields(fields Fielder) *Entry {
+func WithFields(fields Fielder) Interface {
 	return Log.WithFields(fields)
 }
 
 // WithField returns a new entry with the `key` and `value` set.
-func WithField(key string, value interface{}) *Entry {
+func WithField(key string, value interface{}) Interface {
 	return Log.WithField(key, value)
 }
 
 // WithError returns a new entry with the "error" set to `err`.
-func WithError(err error) *Entry {
+func WithError(err error) Interface {
 	return Log.WithError(err)
 }
 
@@ -95,6 +118,6 @@ func Fatalf(msg string, v ...interface{}) {
 
 // Trace returns a new entry with a Stop method to fire off
 // a corresponding completion log, useful with defer.
-func Trace(msg string) *Entry {
+func Trace(msg string) Interface {
 	return Log.Trace(msg)
 }

@@ -4,7 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 
-	"github.com/apex/log"
+	"github.com/sayden/log"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/kinesis"
@@ -40,7 +40,7 @@ func NewConfig(config k.Config) *Handler {
 }
 
 // HandleLog implements log.Handler.
-func (h *Handler) HandleLog(e *log.Entry) error {
+func (h *Handler) HandleLog(e log.Interface) error {
 	b, err := json.Marshal(e)
 	if err != nil {
 		return err

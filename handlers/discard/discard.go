@@ -2,7 +2,7 @@
 package discard
 
 import (
-	"github.com/apex/log"
+	"github.com/sayden/log"
 )
 
 // Default handler.
@@ -17,6 +17,6 @@ func New() *Handler {
 }
 
 // HandleLog implements log.Handler.
-func (h *Handler) HandleLog(e *log.Entry) error {
+func (h *Handler) HandleLog(e log.Interface) error {
 	return nil
 }

@@ -4,8 +4,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/apex/log"
-	"github.com/apex/log/handlers/memory"
+	"github.com/sayden/log"
+	"github.com/sayden/log/handlers/memory"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -28,8 +28,8 @@ func TestInfo(t *testing.T) {
 	log.Infof("logged in %s", "Tobi")
 
 	e := h.Entries[0]
-	assert.Equal(t, e.Message, "logged in Tobi")
-	assert.Equal(t, e.Level, log.InfoLevel)
+	assert.Equal(t, e.GetMessage(), "logged in Tobi")
+	assert.Equal(t, e.GetLevel(), log.LevelInfo)
 }
 
 func TestFielder(t *testing.T) {
@@ -40,7 +40,7 @@ func TestFielder(t *testing.T) {
 	log.WithFields(pet).Info("add pet")
 
 	e := h.Entries[0]
-	assert.Equal(t, log.Fields{"name": "Tobi", "age": 3}, e.Fields)
+	assert.Equal(t, log.Fields{"name": "Tobi", "age": 3}, e.GetFields())
 }
 
 // Unstructured logging is supported, but not recommended since it is hard to query.

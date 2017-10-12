@@ -5,8 +5,8 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/apex/log"
-	"github.com/apex/log/handlers/logfmt"
+	"github.com/sayden/log"
+	"github.com/sayden/log/handlers/logfmt"
 )
 
 func main() {

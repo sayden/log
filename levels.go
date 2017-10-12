@@ -15,28 +15,28 @@ type Level int
 // Log levels.
 const (
 	InvalidLevel Level = iota - 1
-	DebugLevel
-	InfoLevel
-	WarnLevel
-	ErrorLevel
-	FatalLevel
+	LevelDebug
+	LevelInfo
+	LevelWarn
+	LevelError
+	LevelFatal
 )
 
 var levelNames = [...]string{
-	DebugLevel: "debug",
-	InfoLevel:  "info",
-	WarnLevel:  "warn",
-	ErrorLevel: "error",
-	FatalLevel: "fatal",
+	LevelDebug: "debug",
+	LevelInfo:  "info",
+	LevelWarn:  "warn",
+	LevelError: "error",
+	LevelFatal: "fatal",
 }
 
 var levelStrings = map[string]Level{
-	"debug":   DebugLevel,
-	"info":    InfoLevel,
-	"warn":    WarnLevel,
-	"warning": WarnLevel,
-	"error":   ErrorLevel,
-	"fatal":   FatalLevel,
+	"debug":   LevelDebug,
+	"info":    LevelInfo,
+	"warn":    LevelWarn,
+	"warning": LevelWarn,
+	"error":   LevelError,
+	"fatal":   LevelFatal,
 }
 
 // String implementation.

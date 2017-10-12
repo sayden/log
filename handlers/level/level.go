@@ -1,7 +1,7 @@
 // Package level implements a level filter handler.
 package level
 
-import "github.com/apex/log"
+import "github.com/sayden/log"
 
 // Handler implementation.
 type Handler struct {
@@ -18,8 +18,8 @@ func New(h log.Handler, level log.Level) *Handler {
 }
 
 // HandleLog implements log.Handler.
-func (h *Handler) HandleLog(e *log.Entry) error {
-	if e.Level < h.Level {
+func (h *Handler) HandleLog(e log.Interface) error {
+	if e.GetLevel() < h.Level {
 		return nil
 	}
 

@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/apex/log"
+	"github.com/sayden/log"
 	"github.com/go-logfmt/logfmt"
 )
 
@@ -50,16 +50,16 @@ func New(config *Config) *Handler {
 }
 
 // HandleLog implements log.Handler.
-func (h *Handler) HandleLog(e *log.Entry) error {
+func (h *Handler) HandleLog(e log.Interface) error {
 	ts := time.Now().Format(time.Stamp)
 
 	var buf bytes.Buffer
 
 	enc := logfmt.NewEncoder(&buf)
-	enc.EncodeKeyval("level", e.Level.String())
-	enc.EncodeKeyval("message", e.Message)
+	enc.EncodeKeyval("level", e.GetLevel().String())
+	enc.EncodeKeyval("message", e.GetMessage())
 
-	for k, v := range e.Fields {
+	for k, v := range e.GetFields() {
 		enc.EncodeKeyval(k, v)
 	}
 

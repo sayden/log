@@ -5,10 +5,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/apex/log"
-	"github.com/apex/log/handlers/json"
-	"github.com/apex/log/handlers/multi"
-	"github.com/apex/log/handlers/text"
+	"github.com/sayden/log"
+	"github.com/sayden/log/handlers/json"
+	"github.com/sayden/log/handlers/multi"
+	"github.com/sayden/log/handlers/text"
 )
 
 func main() {

@@ -5,17 +5,17 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/apex/log"
-	"github.com/apex/log/handlers/level"
-	"github.com/apex/log/handlers/memory"
+	"github.com/sayden/log"
+	"github.com/sayden/log/handlers/level"
+	"github.com/sayden/log/handlers/memory"
 )
 
 func Test(t *testing.T) {
 	h := memory.New()
 
 	ctx := log.Logger{
-		Handler: level.New(h, log.ErrorLevel),
-		Level:   log.InfoLevel,
+		Handler: level.New(h, log.LevelError),
+		Level:   log.LevelInfo,
 	}
 
 	ctx.Info("hello")
@@ -23,5 +23,5 @@ func Test(t *testing.T) {
 	ctx.Error("boom")
 
 	assert.Len(t, h.Entries, 1)
-	assert.Equal(t, h.Entries[0].Message, "boom")
+	assert.Equal(t, h.Entries[0].GetMessage(), "boom")
 }

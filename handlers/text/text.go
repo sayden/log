@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/apex/log"
+	"github.com/sayden/log"
 )
 
 // Default handler outputting to stderr.
@@ -29,20 +29,20 @@ const (
 
 // Colors mapping.
 var Colors = [...]int{
-	log.DebugLevel: gray,
-	log.InfoLevel:  blue,
-	log.WarnLevel:  yellow,
-	log.ErrorLevel: red,
-	log.FatalLevel: red,
+	log.LevelDebug: gray,
+	log.LevelInfo:  blue,
+	log.LevelWarn:  yellow,
+	log.LevelError: red,
+	log.LevelFatal: red,
 }
 
 // Strings mapping.
 var Strings = [...]string{
-	log.DebugLevel: "DEBUG",
-	log.InfoLevel:  "INFO",
-	log.WarnLevel:  "WARN",
-	log.ErrorLevel: "ERROR",
-	log.FatalLevel: "FATAL",
+	log.LevelDebug: "DEBUG",
+	log.LevelInfo:  "INFO",
+	log.LevelWarn:  "WARN",
+	log.LevelError: "ERROR",
+	log.LevelFatal: "FATAL",
 }
 
 // Handler implementation.
@@ -59,19 +59,19 @@ func New(w io.Writer) *Handler {
 }
 
 // HandleLog implements log.Handler.
-func (h *Handler) HandleLog(e *log.Entry) error {
-	color := Colors[e.Level]
-	level := Strings[e.Level]
-	names := e.Fields.Names()
+func (h *Handler) HandleLog(e log.Interface) error {
+	color := Colors[e.GetLevel()]
+	level := Strings[e.GetLevel()]
+	names := e.GetFields().Names()
 
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
 	ts := time.Since(start) / time.Second
-	fmt.Fprintf(h.Writer, "\033[%dm%6s\033[0m[%04d] %-25s", color, level, ts, e.Message)
+	fmt.Fprintf(h.Writer, "\033[%dm%6s\033[0m[%04d] %-25s", color, level, ts, e.GetMessage())
 
 	for _, name := range names {
-		fmt.Fprintf(h.Writer, " \033[%dm%s\033[0m=%v", color, name, e.Fields.Get(name))
+		fmt.Fprintf(h.Writer, " \033[%dm%s\033[0m=%v", color, name, e.GetFields().Get(name))
 	}
 
 	fmt.Fprintln(h.Writer)

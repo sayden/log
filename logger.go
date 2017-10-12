@@ -3,6 +3,7 @@ package log
 import (
 	stdlog "log"
 	"sort"
+	"time"
 )
 
 // assert interface compliance.
@@ -39,10 +40,10 @@ func (f Fields) Names() (v []string) {
 // The HandlerFunc type is an adapter to allow the use of ordinary functions as
 // log handlers. If f is a function with the appropriate signature,
 // HandlerFunc(f) is a Handler object that calls f.
-type HandlerFunc func(*Entry) error
+type HandlerFunc func(Interface) error
 
 // HandleLog calls f(e).
-func (f HandlerFunc) HandleLog(e *Entry) error {
+func (f HandlerFunc) HandleLog(e Interface) error {
 	return f(e)
 }
 
@@ -52,87 +53,138 @@ func (f HandlerFunc) HandleLog(e *Entry) error {
 //
 // It is left up to Handlers to implement thread-safety.
 type Handler interface {
-	HandleLog(*Entry) error
+	HandleLog(Interface) error
 }
 
 // Logger represents a logger with configurable Level and Handler.
 type Logger struct {
 	Handler Handler
 	Level   Level
+	t       Telemetry
+}
+
+func (e *Logger) Inc(n string, v float64) Interface {
+	//first field value
+	e.t.Inc(n,v)
+	return e
+}
+
+func (e *Logger) GetTelemetry() Telemetry {
+	return e.t
+}
+
+func (e *Logger) Stop(_ *error) {
+	Error("Stop Does nothing")
+}
+
+func (e *Logger) GetLevel() Level {
+	return e.Level
+}
+
+func (e *Logger) GetMessage() string {
+	Error("GetMessage Does nothing")
+	return ""
+}
+
+func (e *Logger) GetFields() Fields {
+	Error("GetFields Does nothing")
+	return nil
+}
+
+func (e *Logger) GetTimestamp() time.Time {
+	Error("GetTimestamp Does nothing")
+	return time.Time{}
+}
+
+func (e *Logger) finalize(_ Level, _ string) Interface {
+	Error("finalize Does nothing")
+	return nil
+}
+
+func (e *Logger) mergedFields() Fields {
+	Error("mergedFields Does nothing")
+	return nil
+}
+
+func (e *Logger) SetMessage(msg string) {
+	Error("SetMessageDoes nothing")
+}
+func (l *Logger) setStart(t time.Time) {
+	Error("setStart Does nothing")
 }
 
 // WithFields returns a new entry with `fields` set.
-func (l *Logger) WithFields(fields Fielder) *Entry {
-	return NewEntry(l).WithFields(fields.Fields())
+func (l *Logger) WithFields(fields Fielder) Interface {
+	return NewEntry(l, l.t).WithFields(fields.Fields())
 }
 
 // WithField returns a new entry with the `key` and `value` set.
 //
 // Note that the `key` should not have spaces in it - use camel
 // case or underscores
-func (l *Logger) WithField(key string, value interface{}) *Entry {
-	return NewEntry(l).WithField(key, value)
+func (l *Logger) WithField(key string, value interface{}) Interface {
+	return NewEntry(l, l.t).WithField(key, value)
 }
 
 // WithError returns a new entry with the "error" set to `err`.
-func (l *Logger) WithError(err error) *Entry {
-	return NewEntry(l).WithError(err)
+func (l *Logger) WithError(err error) Interface {
+	return NewEntry(l, l.t).WithError(err)
 }
 
 // Debug level message.
 func (l *Logger) Debug(msg string) {
-	NewEntry(l).Debug(msg)
+	NewEntry(l, l.t).Debug(msg)
 }
 
 // Info level message.
 func (l *Logger) Info(msg string) {
-	NewEntry(l).Info(msg)
+	NewEntry(l, l.t).Info(msg)
 }
 
 // Warn level message.
 func (l *Logger) Warn(msg string) {
-	NewEntry(l).Warn(msg)
+	NewEntry(l, l.t).Warn(msg)
 }
 
 // Error level message.
 func (l *Logger) Error(msg string) {
-	NewEntry(l).Error(msg)
+	NewEntry(l, l.t).Error(msg)
 }
 
 // Fatal level message, followed by an exit.
 func (l *Logger) Fatal(msg string) {
-	NewEntry(l).Fatal(msg)
+	NewEntry(l, l.t).Fatal(msg)
 }
 
 // Debugf level formatted message.
 func (l *Logger) Debugf(msg string, v ...interface{}) {
-	NewEntry(l).Debugf(msg, v...)
+	NewEntry(l, l.t).Debugf(msg, v...)
 }
 
 // Infof level formatted message.
 func (l *Logger) Infof(msg string, v ...interface{}) {
-	NewEntry(l).Infof(msg, v...)
+	NewEntry(l, l.t).Infof(msg, v...)
 }
 
 // Warnf level formatted message.
 func (l *Logger) Warnf(msg string, v ...interface{}) {
-	NewEntry(l).Warnf(msg, v...)
+	NewEntry(l, l.t).Warnf(msg, v...)
 }
 
 // Errorf level formatted message.
 func (l *Logger) Errorf(msg string, v ...interface{}) {
-	NewEntry(l).Errorf(msg, v...)
+	NewEntry(l, l.t).Errorf(msg, v...)
 }
 
 // Fatalf level formatted message, followed by an exit.
 func (l *Logger) Fatalf(msg string, v ...interface{}) {
-	NewEntry(l).Fatalf(msg, v...)
+	NewEntry(l, l.t).Fatalf(msg, v...)
 }
 
 // Trace returns a new entry with a Stop method to fire off
 // a corresponding completion log, useful with defer.
-func (l *Logger) Trace(msg string) *Entry {
-	return NewEntry(l).Trace(msg)
+func (l *Logger) Trace(msg string) Interface {
+	return NewEntry(l, l.t).Trace(msg)
 }
 
 // log the message, invoking the handler. We clone the entry here

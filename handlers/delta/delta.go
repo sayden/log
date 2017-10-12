@@ -9,7 +9,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/apex/log"
+	"github.com/sayden/log"
 	"github.com/aybabtme/rgbterm"
 	"github.com/tj/go-spin"
 )
@@ -51,20 +51,20 @@ func yellow(s string) string {
 
 // Colors mapping.
 var Colors = [...]colorFunc{
-	log.DebugLevel: gray,
-	log.InfoLevel:  blue,
-	log.WarnLevel:  yellow,
-	log.ErrorLevel: red,
-	log.FatalLevel: red,
+	log.LevelDebug: gray,
+	log.LevelInfo:  blue,
+	log.LevelWarn:  yellow,
+	log.LevelError: red,
+	log.LevelFatal: red,
 }
 
 // Strings mapping.
 var Strings = [...]string{
-	log.DebugLevel: "DEBU",
-	log.InfoLevel:  "INFO",
-	log.WarnLevel:  "WARN",
-	log.ErrorLevel: "ERRO",
-	log.FatalLevel: "FATA",
+	log.LevelDebug: "DEBU",
+	log.LevelInfo:  "INFO",
+	log.LevelWarn:  "WARN",
+	log.LevelError: "ERRO",
+	log.LevelFatal: "FATA",
 }
 
 // Default handler.
@@ -72,10 +72,10 @@ var Default = New(os.Stderr)
 
 // Handler implementation.
 type Handler struct {
-	entries chan *log.Entry
+	entries chan log.Interface
 	start   time.Time
 	spin    *spin.Spinner
-	prev    *log.Entry
+	prev    log.Interface
 	done    chan struct{}
 	w       io.Writer
 }
@@ -83,7 +83,7 @@ type Handler struct {
 // New handler.
 func New(w io.Writer) *Handler {
 	h := &Handler{
-		entries: make(chan *log.Entry),
+		entries: make(chan log.Interface),
 		done:    make(chan struct{}),
 		start:   time.Now(),
 		spin:    spin.New(),
@@ -130,10 +130,10 @@ func (h *Handler) loop() {
 	}
 }
 
-func (h *Handler) render(e *log.Entry, done bool) {
-	color := Colors[e.Level]
-	level := Strings[e.Level]
-	names := e.Fields.Names()
+func (h *Handler) render(e log.Interface, done bool) {
+	color := Colors[e.GetLevel()]
+	level := Strings[e.GetLevel()]
+	names := e.GetFields().Names()
 
 	// delta and spinner
 	if done {
@@ -143,11 +143,11 @@ func (h *Handler) render(e *log.Entry, done bool) {
 	}
 
 	// message
-	fmt.Fprintf(h.w, " %s %s", color(level), color(e.Message))
+	fmt.Fprintf(h.w, " %s %s", color(level), color(e.GetMessage()))
 
 	// fields
 	for _, name := range names {
-		v := e.Fields.Get(name)
+		v := e.GetFields().Get(name)
 
 		if v == "" {
 			continue
@@ -164,7 +164,7 @@ func (h *Handler) render(e *log.Entry, done bool) {
 }
 
 // HandleLog implements log.Handler.
-func (h *Handler) HandleLog(e *log.Entry) error {
+func (h *Handler) HandleLog(e log.Interface) error {
 	h.entries <- e
 	return nil
 }

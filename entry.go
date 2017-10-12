@@ -22,28 +22,65 @@ type Entry struct {
 	Message   string    `json:"message"`
 	start     time.Time
 	fields    []Fields
+	t         Telemetry
 }
 
 // NewEntry returns a new entry for `log`.
-func NewEntry(log *Logger) *Entry {
+func NewEntry(log *Logger, t Telemetry) Interface {
 	return &Entry{
 		Logger: log,
+		t:      t,
 	}
 }
 
+func (e *Entry) Inc(n string, v float64) Interface {
+	//first field value
+	e.t.Inc(n, v)
+	return e
+}
+
+func (e *Entry) GetTelemetry() Telemetry {
+	return e.t
+}
+
+func (e *Entry) GetTimestamp() time.Time {
+	return e.Timestamp
+}
+
+func (e *Entry) GetLevel() Level {
+	return e.Level
+}
+
+func (e *Entry) GetMessage() string {
+	return e.Message
+}
+
+func (e *Entry) GetFields() Fields {
+	return e.Fields
+}
+
+func (e *Entry) SetMessage(msg string) {
+	e.Message = msg
+}
+
+func (e *Entry) setStart(t time.Time) {
+	e.start = t
+}
+
 // WithFields returns a new entry with `fields` set.
-func (e *Entry) WithFields(fields Fielder) *Entry {
+func (e *Entry) WithFields(fields Fielder) Interface {
 	f := []Fields{}
 	f = append(f, e.fields...)
 	f = append(f, fields.Fields())
 	return &Entry{
 		Logger: e.Logger,
 		fields: f,
+		t:      e.t,
 	}
 }
 
 // WithField returns a new entry with the `key` and `value` set.
-func (e *Entry) WithField(key string, value interface{}) *Entry {
+func (e *Entry) WithField(key string, value interface{}) Interface {
 	return e.WithFields(Fields{key: value})
 }
 
@@ -51,7 +88,7 @@ func (e *Entry) WithField(key string, value interface{}) *Entry {
 //
 // The given error may implement .Fielder, if it does the method
 // will add all its `.Fields()` into the returned entry.
-func (e *Entry) WithError(err error) *Entry {
+func (e *Entry) WithError(err error) Interface {
 	ctx := e.WithField("error", err.Error())
 
 	if s, ok := err.(stackTracer); ok {
@@ -78,27 +115,27 @@ func (e *Entry) WithError(err error) *Entry {
 
 // Debug level message.
 func (e *Entry) Debug(msg string) {
-	e.Logger.log(DebugLevel, e, msg)
+	e.Logger.log(LevelDebug, e, msg)
 }
 
 // Info level message.
 func (e *Entry) Info(msg string) {
-	e.Logger.log(InfoLevel, e, msg)
+	e.Logger.log(LevelInfo, e, msg)
 }
 
 // Warn level message.
 func (e *Entry) Warn(msg string) {
-	e.Logger.log(WarnLevel, e, msg)
+	e.Logger.log(LevelWarn, e, msg)
 }
 
 // Error level message.
 func (e *Entry) Error(msg string) {
-	e.Logger.log(ErrorLevel, e, msg)
+	e.Logger.log(LevelError, e, msg)
 }
 
 // Fatal level message, followed by an exit.
 func (e *Entry) Fatal(msg string) {
-	e.Logger.log(FatalLevel, e, msg)
+	e.Logger.log(LevelFatal, e, msg)
 	os.Exit(1)
 }
 
@@ -129,11 +166,11 @@ func (e *Entry) Fatalf(msg string, v ...interface{}) {
 
 // Trace returns a new entry with a Stop method to fire off
 // a corresponding completion log, useful with defer.
-func (e *Entry) Trace(msg string) *Entry {
+func (e *Entry) Trace(msg string) Interface {
 	e.Info(msg)
 	v := e.WithFields(e.Fields)
-	v.Message = msg
-	v.start = time.Now()
+	v.SetMessage(msg)
+	v.setStart(time.Now())
 	return v
 }
 
@@ -161,7 +198,7 @@ func (e *Entry) mergedFields() Fields {
 }
 
 // finalize returns a copy of the Entry with Fields merged.
-func (e *Entry) finalize(level Level, msg string) *Entry {
+func (e *Entry) finalize(level Level, msg string) Interface {
 	return &Entry{
 		Logger:    e.Logger,
 		Fields:    e.mergedFields(),

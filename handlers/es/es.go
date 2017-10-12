@@ -10,7 +10,7 @@ import (
 
 	"github.com/tj/go-elastic/batch"
 
-	"github.com/apex/log"
+	"github.com/sayden/log"
 )
 
 // TODO(tj): allow dumping logs to stderr on timeout
@@ -58,7 +58,7 @@ func New(config *Config) *Handler {
 }
 
 // HandleLog implements log.Handler.
-func (h *Handler) HandleLog(e *log.Entry) error {
+func (h *Handler) HandleLog(e log.Interface) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 

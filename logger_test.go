@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/apex/log"
-	"github.com/apex/log/handlers/discard"
-	"github.com/apex/log/handlers/memory"
+	"github.com/sayden/log"
+	"github.com/sayden/log/handlers/discard"
+	"github.com/sayden/log/handlers/memory"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,14 +16,14 @@ func TestLogger_printf(t *testing.T) {
 
 	l := &log.Logger{
 		Handler: h,
-		Level:   log.InfoLevel,
+		Level:   log.LevelInfo,
 	}
 
 	l.Infof("logged in %s", "Tobi")
 
 	e := h.Entries[0]
-	assert.Equal(t, e.Message, "logged in Tobi")
-	assert.Equal(t, e.Level, log.InfoLevel)
+	assert.Equal(t, e.GetMessage(), "logged in Tobi")
+	assert.Equal(t, e.GetLevel(), log.LevelInfo)
 }
 
 func TestLogger_levels(t *testing.T) {
@@ -31,7 +31,7 @@ func TestLogger_levels(t *testing.T) {
 
 	l := &log.Logger{
 		Handler: h,
-		Level:   log.InfoLevel,
+		Level:   log.LevelInfo,
 	}
 
 	l.Debug("uploading")
@@ -40,8 +40,8 @@ func TestLogger_levels(t *testing.T) {
 	assert.Equal(t, 1, len(h.Entries))
 
 	e := h.Entries[0]
-	assert.Equal(t, e.Message, "upload complete")
-	assert.Equal(t, e.Level, log.InfoLevel)
+	assert.Equal(t, e.GetMessage(), "upload complete")
+	assert.Equal(t, e.GetLevel(), log.LevelInfo)
 }
 
 func TestLogger_WithFields(t *testing.T) {
@@ -49,7 +49,7 @@ func TestLogger_WithFields(t *testing.T) {
 
 	l := &log.Logger{
 		Handler: h,
-		Level:   log.InfoLevel,
+		Level:   log.LevelInfo,
 	}
 
 	ctx := l.WithFields(log.Fields{"file": "sloth.png"})
@@ -59,9 +59,9 @@ func TestLogger_WithFields(t *testing.T) {
 	assert.Equal(t, 1, len(h.Entries))
 
 	e := h.Entries[0]
-	assert.Equal(t, e.Message, "upload complete")
-	assert.Equal(t, e.Level, log.InfoLevel)
-	assert.Equal(t, log.Fields{"file": "sloth.png"}, e.Fields)
+	assert.Equal(t, e.GetMessage(), "upload complete")
+	assert.Equal(t, e.GetLevel(), log.LevelInfo)
+	assert.Equal(t, log.Fields{"file": "sloth.png"}, e.GetFields())
 }
 
 func TestLogger_WithField(t *testing.T) {
@@ -69,7 +69,7 @@ func TestLogger_WithField(t *testing.T) {
 
 	l := &log.Logger{
 		Handler: h,
-		Level:   log.InfoLevel,
+		Level:   log.LevelInfo,
 	}
 
 	ctx := l.WithField("file", "sloth.png").WithField("user", "Tobi")
@@ -79,9 +79,9 @@ func TestLogger_WithField(t *testing.T) {
 	assert.Equal(t, 1, len(h.Entries))
 
 	e := h.Entries[0]
-	assert.Equal(t, e.Message, "upload complete")
-	assert.Equal(t, e.Level, log.InfoLevel)
-	assert.Equal(t, log.Fields{"file": "sloth.png", "user": "Tobi"}, e.Fields)
+	assert.Equal(t, e.GetMessage(), "upload complete")
+	assert.Equal(t, e.GetLevel(), log.LevelInfo)
+	assert.Equal(t, log.Fields{"file": "sloth.png", "user": "Tobi"}, e.GetFields())
 }
 
 func TestLogger_Trace_info(t *testing.T) {
@@ -89,7 +89,7 @@ func TestLogger_Trace_info(t *testing.T) {
 
 	l := &log.Logger{
 		Handler: h,
-		Level:   log.InfoLevel,
+		Level:   log.LevelInfo,
 	}
 
 	func() (err error) {
@@ -101,17 +101,17 @@ func TestLogger_Trace_info(t *testing.T) {
 
 	{
 		e := h.Entries[0]
-		assert.Equal(t, e.Message, "upload")
-		assert.Equal(t, e.Level, log.InfoLevel)
-		assert.Equal(t, log.Fields{"file": "sloth.png"}, e.Fields)
+		assert.Equal(t, e.GetMessage(), "upload")
+		assert.Equal(t, e.GetLevel(), log.LevelInfo)
+		assert.Equal(t, log.Fields{"file": "sloth.png"}, e.GetFields())
 	}
 
 	{
 		e := h.Entries[1]
-		assert.Equal(t, e.Message, "upload")
-		assert.Equal(t, e.Level, log.InfoLevel)
-		assert.Equal(t, "sloth.png", e.Fields["file"])
-		assert.IsType(t, time.Duration(0), e.Fields["duration"])
+		assert.Equal(t, e.GetMessage(), "upload")
+		assert.Equal(t, e.GetLevel(), log.LevelInfo)
+		assert.Equal(t, "sloth.png", e.GetFields()["file"])
+		assert.IsType(t, time.Duration(0), e.GetFields()["duration"])
 	}
 }
 
@@ -120,7 +120,7 @@ func TestLogger_Trace_error(t *testing.T) {
 
 	l := &log.Logger{
 		Handler: h,
-		Level:   log.InfoLevel,
+		Level:   log.LevelInfo,
 	}
 
 	func() (err error) {
@@ -132,18 +132,18 @@ func TestLogger_Trace_error(t *testing.T) {
 
 	{
 		e := h.Entries[0]
-		assert.Equal(t, e.Message, "upload")
-		assert.Equal(t, e.Level, log.InfoLevel)
-		assert.Equal(t, "sloth.png", e.Fields["file"])
+		assert.Equal(t, e.GetMessage(), "upload")
+		assert.Equal(t, e.GetLevel(), log.LevelInfo)
+		assert.Equal(t, "sloth.png", e.GetFields()["file"])
 	}
 
 	{
 		e := h.Entries[1]
-		assert.Equal(t, e.Message, "upload")
-		assert.Equal(t, e.Level, log.ErrorLevel)
-		assert.Equal(t, "sloth.png", e.Fields["file"])
-		assert.Equal(t, "boom", e.Fields["error"])
-		assert.IsType(t, time.Duration(0), e.Fields["duration"])
+		assert.Equal(t, e.GetMessage(), "upload")
+		assert.Equal(t, e.GetLevel(), log.LevelError)
+		assert.Equal(t, "sloth.png", e.GetFields()["file"])
+		assert.Equal(t, "boom", e.GetFields()["error"])
+		assert.IsType(t, time.Duration(0), e.GetFields()["duration"])
 	}
 }
 
@@ -152,7 +152,7 @@ func TestLogger_Trace_nil(t *testing.T) {
 
 	l := &log.Logger{
 		Handler: h,
-		Level:   log.InfoLevel,
+		Level:   log.LevelInfo,
 	}
 
 	func() {
@@ -163,42 +163,42 @@ func TestLogger_Trace_nil(t *testing.T) {
 
 	{
 		e := h.Entries[0]
-		assert.Equal(t, e.Message, "upload")
-		assert.Equal(t, e.Level, log.InfoLevel)
-		assert.Equal(t, log.Fields{"file": "sloth.png"}, e.Fields)
+		assert.Equal(t, e.GetMessage(), "upload")
+		assert.Equal(t, e.GetLevel(), log.LevelInfo)
+		assert.Equal(t, log.Fields{"file": "sloth.png"}, e.GetFields())
 	}
 
 	{
 		e := h.Entries[1]
-		assert.Equal(t, e.Message, "upload")
-		assert.Equal(t, e.Level, log.InfoLevel)
-		assert.Equal(t, "sloth.png", e.Fields["file"])
-		assert.IsType(t, time.Duration(0), e.Fields["duration"])
+		assert.Equal(t, e.GetMessage(), "upload")
+		assert.Equal(t, e.GetLevel(), log.LevelInfo)
+		assert.Equal(t, "sloth.png", e.GetFields()["file"])
+		assert.IsType(t, time.Duration(0), e.GetFields()["duration"])
 	}
 }
 
 func TestLogger_HandlerFunc(t *testing.T) {
 	h := memory.New()
-	f := func(e *log.Entry) error {
+	f := func(e log.Interface) error {
 		return h.HandleLog(e)
 	}
 
 	l := &log.Logger{
 		Handler: log.HandlerFunc(f),
-		Level:   log.InfoLevel,
+		Level:   log.LevelInfo,
 	}
 
 	l.Infof("logged in %s", "Tobi")
 
 	e := h.Entries[0]
-	assert.Equal(t, e.Message, "logged in Tobi")
-	assert.Equal(t, e.Level, log.InfoLevel)
+	assert.Equal(t, e.GetMessage(), "logged in Tobi")
+	assert.Equal(t, e.GetLevel(), log.LevelInfo)
 }
 
 func BenchmarkLogger_small(b *testing.B) {
 	l := &log.Logger{
 		Handler: discard.New(),
-		Level:   log.InfoLevel,
+		Level:   log.LevelInfo,
 	}
 
 	for i := 0; i < b.N; i++ {
@@ -209,7 +209,7 @@ func BenchmarkLogger_small(b *testing.B) {
 func BenchmarkLogger_medium(b *testing.B) {
 	l := &log.Logger{
 		Handler: discard.New(),
-		Level:   log.InfoLevel,
+		Level:   log.LevelInfo,
 	}
 
 	for i := 0; i < b.N; i++ {
@@ -224,7 +224,7 @@ func BenchmarkLogger_medium(b *testing.B) {
 func BenchmarkLogger_large(b *testing.B) {
 	l := &log.Logger{
 		Handler: discard.New(),
-		Level:   log.InfoLevel,
+		Level:   log.LevelInfo,
 	}
 
 	err := fmt.Errorf("boom")
@@ -236,13 +236,13 @@ func BenchmarkLogger_large(b *testing.B) {
 			"size": 1 << 20,
 		}).
 			WithFields(log.Fields{
-			"some":     "more",
-			"data":     "here",
-			"whatever": "blah blah",
-			"more":     "stuff",
-			"context":  "such useful",
-			"much":     "fun",
-		}).
+				"some":     "more",
+				"data":     "here",
+				"whatever": "blah blah",
+				"more":     "stuff",
+				"context":  "such useful",
+				"much":     "fun",
+			}).
 			WithError(err).Error("upload failed")
 	}
 }

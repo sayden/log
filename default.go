@@ -21,19 +21,19 @@ func (a byName) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a byName) Less(i, j int) bool { return a[i].Name < a[j].Name }
 
 // handleStdLog outpouts to the stlib log.
-func handleStdLog(e *Entry) error {
-	level := levelNames[e.Level]
+func handleStdLog(e Interface) error {
+	level := levelNames[e.GetLevel()]
 
 	var fields []field
 
-	for k, v := range e.Fields {
+	for k, v := range e.GetFields() {
 		fields = append(fields, field{k, v})
 	}
 
 	sort.Sort(byName(fields))
 
 	var b bytes.Buffer
-	fmt.Fprintf(&b, "%5s %-25s", level, e.Message)
+	fmt.Fprintf(&b, "%5s %-25s", level, e.GetMessage())
 
 	for _, f := range fields {
 		fmt.Fprintf(&b, " %s=%v", f.Name, f.Value)

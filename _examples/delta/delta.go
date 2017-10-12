@@ -4,13 +4,13 @@ import (
 	"errors"
 	"time"
 
-	"github.com/apex/log"
-	"github.com/apex/log/handlers/delta"
+	"github.com/sayden/log"
+	"github.com/sayden/log/handlers/delta"
 )
 
 func main() {
 	log.SetHandler(delta.Default)
-	log.SetLevel(log.DebugLevel)
+	log.SetLevel(log.LevelDebug)
 
 	ctx := log.WithFields(log.Fields{
 		"file": "something.png",

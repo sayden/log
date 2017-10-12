@@ -5,13 +5,13 @@ package memory
 import (
 	"sync"
 
-	"github.com/apex/log"
+	"github.com/sayden/log"
 )
 
 // Handler implementation.
 type Handler struct {
 	mu      sync.Mutex
-	Entries []*log.Entry
+	Entries []log.Interface
 }
 
 // New handler.
@@ -20,7 +20,7 @@ func New() *Handler {
 }
 
 // HandleLog implements log.Handler.
-func (h *Handler) HandleLog(e *log.Entry) error {
+func (h *Handler) HandleLog(e log.Interface) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 	h.Entries = append(h.Entries, e)

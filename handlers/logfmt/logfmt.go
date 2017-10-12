@@ -6,7 +6,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/apex/log"
+	"github.com/sayden/log"
 	"github.com/go-logfmt/logfmt"
 )
 
@@ -27,18 +27,18 @@ func New(w io.Writer) *Handler {
 }
 
 // HandleLog implements log.Handler.
-func (h *Handler) HandleLog(e *log.Entry) error {
-	names := e.Fields.Names()
+func (h *Handler) HandleLog(e log.Interface) error {
+	names := e.GetFields().Names()
 
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
-	h.enc.EncodeKeyval("timestamp", e.Timestamp)
-	h.enc.EncodeKeyval("level", e.Level.String())
-	h.enc.EncodeKeyval("message", e.Message)
+	h.enc.EncodeKeyval("timestamp", e.GetTimestamp())
+	h.enc.EncodeKeyval("level", e.GetLevel().String())
+	h.enc.EncodeKeyval("message", e.GetMessage())
 
 	for _, name := range names {
-		h.enc.EncodeKeyval(name, e.Fields.Get(name))
+		h.enc.EncodeKeyval(name, e.GetFields().Get(name))
 	}
 
 	h.enc.EndRecord()
